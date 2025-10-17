@@ -1,0 +1,117 @@
+create database  Email_Sender
+
+USE [Email_Sender]
+GO
+
+/****** Object:  Table [dbo].[User_Level]    Script Date: 17/10/2025 16:36:14 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[User_Level](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Level] [nvarchar](10) NOT NULL,
+ CONSTRAINT [PK_User_Level] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_User_Level_Level] UNIQUE NONCLUSTERED 
+(
+	[Level] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+USE [Email_Sender]
+GO
+
+/****** Object:  Table [dbo].[Users]    Script Date: 17/10/2025 16:39:38 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Users](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserName] [nvarchar](50) NOT NULL,
+	[Password] [nvarchar](100) NOT NULL,
+	[UserLevelId] [int] NOT NULL,
+ CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_Users_UserName] UNIQUE NONCLUSTERED 
+(
+	[UserName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [FK_Users_User_Level] FOREIGN KEY([UserLevelId])
+REFERENCES [dbo].[User_Level] ([Id])
+GO
+
+ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [FK_Users_User_Level]
+GO
+
+USE [Email_Sender]
+GO
+
+/****** Object:  Table [dbo].[Settings_Emails]    Script Date: 17/10/2025 16:39:54 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Settings_Emails](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[RecipientEmail] [nvarchar](255) NOT NULL,
+	[Description] [nvarchar](200) NULL,
+	[UserId] [int] NOT NULL,
+	[Status] [tinyint] NOT NULL,
+	[ScheduledAt] [datetime2](0) NOT NULL,
+	[SentAt] [datetime2](0) NULL,
+	[CreatedAt] [datetime2](0) NOT NULL,
+ CONSTRAINT [PK_Settings_Emails] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Settings_Emails] ADD  CONSTRAINT [DF_SettingsEmails_Status]  DEFAULT ((0)) FOR [Status]
+GO
+
+ALTER TABLE [dbo].[Settings_Emails] ADD  CONSTRAINT [DF_SettingsEmails_ScheduledAt]  DEFAULT (sysutcdatetime()) FOR [ScheduledAt]
+GO
+
+ALTER TABLE [dbo].[Settings_Emails] ADD  CONSTRAINT [DF_SettingsEmails_CreatedAt]  DEFAULT (sysutcdatetime()) FOR [CreatedAt]
+GO
+
+ALTER TABLE [dbo].[Settings_Emails]  WITH CHECK ADD  CONSTRAINT [FK_SettingsEmails_Users] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[Settings_Emails] CHECK CONSTRAINT [FK_SettingsEmails_Users]
+GO
+
+ALTER TABLE [dbo].[Settings_Emails]  WITH CHECK ADD  CONSTRAINT [CK_SettingsEmails_Email] CHECK  (([RecipientEmail] like '%@%.%'))
+GO
+
+ALTER TABLE [dbo].[Settings_Emails] CHECK CONSTRAINT [CK_SettingsEmails_Email]
+GO
+
+ALTER TABLE [dbo].[Settings_Emails]  WITH CHECK ADD  CONSTRAINT [CK_SettingsEmails_Status] CHECK  (([Status]=(3) OR [Status]=(2) OR [Status]=(1) OR [Status]=(0)))
+GO
+
+ALTER TABLE [dbo].[Settings_Emails] CHECK CONSTRAINT [CK_SettingsEmails_Status]
+GO
+
+
+
